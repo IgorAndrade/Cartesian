@@ -27,6 +27,10 @@ func (a Api) Stop() error {
 }
 
 func (a Api) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, fmt.Sprintf("Method %s Not Allowed", r.Method), http.StatusMethodNotAllowed)
+		return
+	}
 	paramX := r.FormValue("x")
 	if paramX == "" {
 		http.Error(w, "x is required", http.StatusBadRequest)
