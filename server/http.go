@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -31,32 +32,17 @@ func (a Api) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Method %s Not Allowed", r.Method), http.StatusMethodNotAllowed)
 		return
 	}
-	paramX := r.FormValue("x")
-	if paramX == "" {
-		http.Error(w, "x is required", http.StatusBadRequest)
-		return
-	}
-	paramY := r.FormValue("y")
-	if paramY == "" {
-		http.Error(w, "y is required", http.StatusBadRequest)
-		return
-	}
-	paramDistance := r.FormValue("distance")
-	if paramDistance == "" {
-		http.Error(w, "distance is required", http.StatusBadRequest)
-		return
-	}
-	x, err := strconv.Atoi(paramX)
+	x, err := validateAndGet(r, "x")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	y, err := strconv.Atoi(paramY)
+	y, err := validateAndGet(r, "y")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	distance, err := strconv.Atoi(paramDistance)
+	distance, err := validateAndGet(r, "distance")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -80,4 +66,16 @@ func NewApi(port string, service service.PointService, cancel context.CancelFunc
 	srv := &http.Server{Addr: fmt.Sprintf(":%s", port), Handler: mux}
 	api.srv = srv
 	return api
+}
+
+func validateAndGet(r *http.Request, param string) (int, error) {
+	paramString := r.FormValue(param)
+	if paramString == "" {
+		return 0, errors.New("distance is required")
+	}
+	num, err := strconv.Atoi(paramString)
+	if err != nil {
+		return 0, err
+	}
+	return num, nil
 }
