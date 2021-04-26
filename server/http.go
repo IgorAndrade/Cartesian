@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -24,11 +25,12 @@ func (a Api) Start() error {
 }
 
 func (a Api) Stop() error {
+	log.Println("Closing HTTP server")
 	return a.srv.Close()
 }
 
 func (a Api) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
+	if r.Method != http.MethodGet {
 		http.Error(w, fmt.Sprintf("Method %s Not Allowed", r.Method), http.StatusMethodNotAllowed)
 		return
 	}

@@ -3,7 +3,7 @@ IMAGE_NAME="cartesian:1.0"
 CONTAINER_NAME="api"
 
 test:
-	@go test ./...
+	@go test -v ./...
 
 run:
 	go run main.go
